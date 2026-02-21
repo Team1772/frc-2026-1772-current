@@ -9,6 +9,7 @@ import com.ctre.phoenix6.configs.TalonFXConfigurator;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.Follower;
 import com.ctre.phoenix6.controls.VelocityDutyCycle;
+import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.MotorAlignmentValue;
@@ -23,7 +24,7 @@ public class ShooterSubsystem extends SubsystemBase{
     private final TalonFX rightMotor;
     private final TalonFX leftMotor;
     private final Follower follower;
-
+    private final VelocityVoltage shooterpid = new VelocityVoltage(0).withSlot(0);
 
     private final DutyCycleOut percentOut = new DutyCycleOut(0);
     private final VelocityDutyCycle velocityOut = new VelocityDutyCycle(0);
@@ -36,7 +37,7 @@ public class ShooterSubsystem extends SubsystemBase{
         
          SparkMaxConfig config = new SparkMaxConfig();
         config
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(30)
         .idleMode(IdleMode.kCoast)
         .inverted(true);
 
@@ -48,12 +49,13 @@ public class ShooterSubsystem extends SubsystemBase{
         TalonFXConfigurator slaveConfig = leftMotor.getConfigurator();
 
 
-        // Slot0Configs positionPIDConfigs = new Slot0Configs();
-        // positionPIDConfigs.kP = 0.2;
-        // positionPIDConfigs.kI = 0.005;
-        // positionPIDConfigs.kD = 0;
-        // positionPIDConfigs.kA = 0;
-        // masterConfig.apply(positionPIDConfigs);
+        Slot0Configs slot0Configs = new Slot0Configs();
+        slot0Configs.kS = 0.1; // Add 0.1 V output to overcome static friction
+        slot0Configs.kV = 0.1; // A velocity target of 1 rps results in 0.10 V output
+        slot0Configs.kP = 0; // An error of 1 rps results in 0.11 V output
+        slot0Configs.kI = 0; // no output for integrated error
+        slot0Configs.kD = 0; // no output for error derivative
+        masterConfig.apply(slot0Configs);
         // slaveConfig.apply(positionPIDConfigs);
     
         MotorOutputConfigs rightMotoroutputConfigs = new MotorOutputConfigs();
@@ -87,19 +89,15 @@ public class ShooterSubsystem extends SubsystemBase{
         masterConfig.apply(currentLimitsConfigs);
         slaveConfig.apply(currentLimitsConfigs);
 
-
-
         }
-
-
 
      public void percentOut(double speed) {
         rightMotor.setControl(percentOut.withOutput(speed));
         leftMotor.setControl(follower);
     }
     
-    public void velocityOut(double speed) {
-        rightMotor.setControl(velocityOut.withVelocity(speed));
+    public void velocityOut(double rps) {
+        rightMotor.setControl(shooterpid.withVelocity(rps).withFeedForward(0.5));
         leftMotor.setControl(follower);
     }
 
@@ -115,14 +113,6 @@ public class ShooterSubsystem extends SubsystemBase{
 
      @Override
     public void periodic() {
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Left/Voltage/Supply", leftMotor.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Left/Current/Supply", leftMotor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Left/Current/Stator", leftMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Left/Velocity", leftMotor.getVelocity().getValueAsDouble());
-
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Right/Voltage/Supply", rightMotor.getSupplyVoltage().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Right/Current/Supply", rightMotor.getSupplyCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Right/Current/Stator", rightMotor.getStatorCurrent().getValueAsDouble());
-        SmartDashboard.putNumber("Launcher Subsystem/Motors/Right/Velocity", rightMotor.getVelocity().getValueAsDouble());
+        SmartDashboard.putNumber("shooter velocity", rightMotor.getVelocity().getValueAsDouble());
     }
 }

@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.swervedrive.auto.shooter.ShootAutoTimer;
 import frc.robot.subsystems.BufferSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -28,6 +29,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer
 {
   final         CommandXboxController driverXbox = new CommandXboxController(0);
+  final CommandXboxController copilotXbox = new CommandXboxController(1);
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/neo"));
   private final SendableChooser<Command> autoChooser;
@@ -182,23 +184,43 @@ public class RobotContainer
       driverXbox.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
       driverXbox.start().whileTrue(Commands.none());
       driverXbox.back().whileTrue(Commands.none());
-      driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
-      driverXbox.rightBumper().onTrue(Commands.none());
+      //driverXbox.leftBumper().whileTrue(Commands.runOnce(drivebase::lock, drivebase).repeatedly());
+      //driverXbox.rightBumper().onTrue(Commands.none());
     }
 
     //----------------------------------------------------------------------------------------
     //end of swerve buttons
     //----------------------------------------------------------------------------------------
-    
-    // VV COMENTAR SE TESTAR INTAKE 
-    driverXbox.a().whileTrue(Commands.startEnd(() -> shooterSubsystem.percentOut(0.5), shooterSubsystem::stop, shooterSubsystem));
-    driverXbox.rightBumper().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(0.5), bufferSubsystem::stop, bufferSubsystem));
-    driverXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-0.8), intakeSubsystem::stop, intakeSubsystem));
-  }
+
+    boolean isUsarUmControle = true;
+    //true = 1 controle
+    //false = 2 controle
+    double velocityRps = 70; //Shooter
+    double velocityBuffer = -0.6;
+    double velocityIntake = 0.25;
+
+    if (isUsarUmControle){
+
+    driverXbox.rightTrigger().whileTrue(Commands.startEnd(() -> shooterSubsystem.velocityOut(velocityRps), shooterSubsystem::stop, shooterSubsystem));
+    driverXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    driverXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    driverXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    driverXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+
+  }else {
+
+    copilotXbox.rightTrigger().whileTrue(Commands.startEnd(() -> shooterSubsystem.velocityOut(velocityRps), shooterSubsystem::stop, shooterSubsystem));
+    copilotXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    copilotXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    }
+    }
 
   public Command getAutonomousCommand()
+  
   {
-    return autoChooser.getSelected();
+    return new ShootAutoTimer(bufferSubsystem, shooterSubsystem, 4);
   }
 
   public void setMotorBrake(boolean brake)
@@ -206,3 +228,4 @@ public class RobotContainer
     drivebase.setMotorBrake(brake);
   }
 }
+
