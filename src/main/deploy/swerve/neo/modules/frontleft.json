@@ -10,7 +10,7 @@
     "canbus": null
   },
   "encoder": {
-    "type": "ma3",
+    "type": "none",
     "id": 2,
     "canbus": null
   },
@@ -19,7 +19,7 @@
     "angle": false
   },
   "absoluteEncoderInverted":true,
-  "absoluteEncoderOffset": -195.1,
+  "absoluteEncoderOffset": 0,
   "location": {
     "front": 10.335,
     "left": 10.43

@@ -31,9 +31,9 @@ public class ShootAutoTimer extends Command {
 
     this.shooter.velocityOut(73);
 
-    boolean isbufferenable = (Math.abs(73 - this.shooter.getVelocity())) <= Math.abs(5);
+    boolean isBufferEnable = (Math.abs(73 - this.shooter.getVelocity())) <= Math.abs(5);
 
-    if (isbufferenable) {
+    if (isBufferEnable) {
       this.buffer.percentOut(-0.6);
     }
   }

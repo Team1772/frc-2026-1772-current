@@ -10,6 +10,7 @@ import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BufferSubsystem extends SubsystemBase {
@@ -41,5 +42,9 @@ private SparkMax motorVortex;
       motorVortex.stopMotor();
     }
 
-
+    @Override
+    public void periodic()
+    {
+    SmartDashboard.putNumber("corrente:", motorVortex.getOutputCurrent());
+    }
 }
