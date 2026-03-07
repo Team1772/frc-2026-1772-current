@@ -7,17 +7,19 @@ import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShootAutoTimer extends Command {
   private final BufferSubsystem buffer;
+  private final BufferSubsystem servo;
   private final ShooterSubsystem shooter;
   private final Timer timer;
   private double secondsEnabled;
 
-  public ShootAutoTimer(BufferSubsystem intake, ShooterSubsystem shooter, double secondsEnabled) {
+  public ShootAutoTimer(BufferSubsystem intake, ShooterSubsystem shooter, BufferSubsystem servoBuffer, double secondsEnabled) {
+    this.servo = servoBuffer;
     this.buffer = intake;
     this.shooter = shooter;
     this.secondsEnabled = secondsEnabled;
 
     this.timer = new Timer();
-    addRequirements(this.buffer, this.shooter);
+    addRequirements(this.servo, this.buffer, this.shooter);
   }
 
   @Override
@@ -29,12 +31,14 @@ public class ShootAutoTimer extends Command {
   @Override
   public void execute() {
 
+    this.servo.percentOutServo(1);
     this.shooter.velocityOut(73);
 
     boolean isBufferEnable = (Math.abs(73 - this.shooter.getVelocity())) <= Math.abs(5);
 
     if (isBufferEnable) {
       this.buffer.percentOut(-0.6);
+      
     }
   }
 

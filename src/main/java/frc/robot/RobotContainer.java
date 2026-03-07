@@ -213,6 +213,7 @@ public class RobotContainer
     Command ShootAutoCommand = new ShootAuto(bufferSubsystem, shooterSubsystem, intakeSubsystem, velocityRps);
 
     if (isUsarUmControle) {
+    
     driverXbox.y().whileTrue(bufferShooterCommand);
     driverXbox.rightTrigger().whileTrue(shooterCommand);
     driverXbox.rightBumper().whileTrue(ShootAutoCommand);
@@ -231,13 +232,16 @@ public class RobotContainer
     copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
     copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
     copilotXbox.povUp().whileTrue(bufferShooterCommand2);
+    copilotXbox.povLeft().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(1.0), bufferSubsystem::stopServo, bufferSubsystem));
+    copilotXbox.povRight().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-1.0), bufferSubsystem::stopServo, bufferSubsystem));
     }
     }
 
   public Command getAutonomousCommand()
   
   {
-    return new ShootAutoTimer(bufferSubsystem, shooterSubsystem, 8);
+    return new ShootAutoTimer(bufferSubsystem, shooterSubsystem, bufferSubsystem, 15);
+
   }
 
   public void setMotorBrake(boolean brake)
