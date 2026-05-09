@@ -43,8 +43,8 @@ public class RobotContainer
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                () -> driverXbox.getLeftY() * -1,
-                                                                () -> driverXbox.getLeftX() * -1)
+                                                                () -> driverXbox.getLeftY() * 1,
+                                                                () -> driverXbox.getLeftX() * 1)
                                                             .withControllerRotationAxis(driverXbox::getRightX)
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
@@ -199,7 +199,7 @@ public class RobotContainer
     //false = 2 controle
     double velocityRps = 73; //Shooter
     double velocityBuffer = -0.6;
-    double velocityIntake = 0.8;
+    double velocityIntake = 0.6;
 
     Command shooterCommand = Commands.startEnd(() -> shooterSubsystem.velocityOut(velocityRps), shooterSubsystem::stop, shooterSubsystem);
                         //.alongWith(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
@@ -214,39 +214,39 @@ public class RobotContainer
 
     if (isUsarUmControle) {
     
-    driverXbox.y().whileTrue(bufferShooterCommand);
-    driverXbox.rightTrigger().whileTrue(shooterCommand);
     driverXbox.rightBumper().whileTrue(ShootAutoCommand);
-    driverXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    driverXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    driverXbox.y().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-0.05), bufferSubsystem::stopServo, bufferSubsystem));
+    driverXbox.a().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(0.05), bufferSubsystem::stopServo, bufferSubsystem));
+    driverXbox.rightTrigger().whileTrue(shooterCommand);
+    driverXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    driverXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
     driverXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
     driverXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
     driverXbox.povUp().whileTrue(bufferShooterCommand2);
 
   } else {
     copilotXbox.rightBumper().whileTrue(ShootAutoCommand);
-    copilotXbox.y().whileTrue(bufferShooterCommand);
+    copilotXbox.y().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-0.05), bufferSubsystem::stopServo, bufferSubsystem));
+    copilotXbox.a().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(0.05), bufferSubsystem::stopServo, bufferSubsystem));
     copilotXbox.rightTrigger().whileTrue(shooterCommand);
-    copilotXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    copilotXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
-    copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    copilotXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    copilotXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+    copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
     copilotXbox.povUp().whileTrue(bufferShooterCommand2);
-    copilotXbox.povLeft().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(1.0), bufferSubsystem::stopServo, bufferSubsystem));
-    copilotXbox.povRight().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-1.0), bufferSubsystem::stopServo, bufferSubsystem));
     }
     }
 
-  public Command getAutonomousCommand()
-  
+  public Command getAutonomousCommand()  
   {
-    return new ShootAutoTimer(bufferSubsystem, shooterSubsystem, bufferSubsystem, 15);
-
+   return drivebase.getAutonomousCommand("teste");
   }
 
   public void setMotorBrake(boolean brake)
   {
     drivebase.setMotorBrake(brake);
   }
+
+  
 }
 

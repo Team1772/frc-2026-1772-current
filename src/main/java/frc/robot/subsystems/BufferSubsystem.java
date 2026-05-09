@@ -9,23 +9,28 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
+import com.ctre.phoenix6.hardware.TalonFX;
 
 import edu.wpi.first.wpilibj.Servo;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class BufferSubsystem extends SubsystemBase {
-private SparkMax motorVortex;
-public Servo servoBuffer;
+public SparkMax motorVortex;
+public TalonFX servoBuffer;
 
   public BufferSubsystem() {
     this.motorVortex = new SparkMax(12, MotorType.kBrushless);
     
-     servoBuffer = new Servo(1);
+    //servoBuffer = new Servo(1);
+
+    servoBuffer = new TalonFX(16);
+    servoBuffer.getConfigurator().apply(new TalonFXConfiguration());
 
     SparkMaxConfig config = new SparkMaxConfig();
     config
-        .smartCurrentLimit(50)
+        .smartCurrentLimit(40)
         .idleMode(IdleMode.kCoast)
         .inverted(true);
 
@@ -41,21 +46,47 @@ public Servo servoBuffer;
     public void percentOut(double speed) {
       motorVortex.set(speed);
 
-      servoBuffer.set(-1.0);
+      servoBuffer.set(0.05);
     }
 
+    public void percentOut2(double speed) {
+      motorVortex.set(speed);
+    }
+
+    public void percentOut3(double speed) {
+      motorVortex.set(speed);
+
+      servoBuffer.set(-0.05);
+    }
+
+    public void percentOutReverse(double speed) {
+      motorVortex.set(speed);
+
+      servoBuffer.set(0.05);
+    }
+    public void rollbackBuffer(double speed) {
+      motorVortex.set(-speed);
+
+      servoBuffer.set(0.05);
+    }
     public void percentOutServo(double speedServo) {
       servoBuffer.set(speedServo);
     }
     public void stopServo() {
-      servoBuffer.set(0.5);
+      servoBuffer.set(0);
+    }
+
+    public void percentOut(double bufferSpeed, double indexerSpeed)
+    {
+      motorVortex.set(bufferSpeed);
+      servoBuffer.set(indexerSpeed);
     }
 
     
     public void stop() {
       motorVortex.stopMotor();
 
-      servoBuffer.set(0.5);
+      servoBuffer.set(0);
     }
 
     @Override

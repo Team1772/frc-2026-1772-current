@@ -6,7 +6,7 @@ import frc.robot.subsystems.BufferSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 
 public class ShootAutoTimer extends Command {
-  private final BufferSubsystem buffer;
+  public final BufferSubsystem buffer;
   private final BufferSubsystem servo;
   private final ShooterSubsystem shooter;
   private final Timer timer;
@@ -31,14 +31,27 @@ public class ShootAutoTimer extends Command {
   @Override
   public void execute() {
 
-    this.servo.percentOutServo(1);
+    this.servo.percentOutServo(0.05);
     this.shooter.velocityOut(73);
 
     boolean isBufferEnable = (Math.abs(73 - this.shooter.getVelocity())) <= Math.abs(5);
 
     if (isBufferEnable) {
-      this.buffer.percentOut(-0.6);
-      
+      if (this.buffer.motorVortex.getOutputCurrent() >= 25 && this.buffer.motorVortex.getEncoder().getVelocity() <= 100){
+        //this.buffer.rollbackBuffer(0.6);
+        this.buffer.percentOut(-0.8, 0.05);
+        //System.out.println("rollback");
+      } 
+      else{
+        if (this.timer.hasElapsed(6)) {
+          this.buffer.percentOut(-0.6, 0.05);
+          //System.out.println("percentout");
+        }
+        else{
+          this.buffer.percentOut(-0.6, -0.05);
+          //System.out.println("percentout3");
+        }
+      }
     }
   }
 

@@ -17,7 +17,7 @@ public class IntakeSubsystem extends SubsystemBase {
 
         SparkMaxConfig config = new SparkMaxConfig();
         config
-        .smartCurrentLimit(30)
+        .smartCurrentLimit(40)
         .idleMode(IdleMode.kCoast)
         .inverted(true);
 
