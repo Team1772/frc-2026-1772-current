@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "redtop-1"
+            "pathName": "heading-diagonal"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 2.0
+            "waitTime": 3.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "redtop-2"
+            "pathName": "heading-diagonal-volta"
           }
         }
       ]

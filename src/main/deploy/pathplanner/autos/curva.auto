@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "redtop-1"
+            "pathName": "frente-vira"
           }
         },
         {
@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "redtop-2"
+            "pathName": "volta-180"
           }
         }
       ]
