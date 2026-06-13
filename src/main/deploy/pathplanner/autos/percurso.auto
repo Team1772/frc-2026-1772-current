@@ -5,9 +5,22 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "parallel",
           "data": {
-            "pathName": "vira-1"
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "teste"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "test"
+                }
+              }
+            ]
           }
         }
       ]

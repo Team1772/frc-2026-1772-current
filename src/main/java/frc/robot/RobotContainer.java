@@ -19,11 +19,12 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.swervedrive.auto.shooter.Shoot;
 // import frc.robot.commands.swervedrive.auto.shooter.ShootAuto;
 // import frc.robot.commands.swervedrive.auto.shooter.ShootAutoTimer;
 // import frc.robot.subsystems.BufferSubsystem;
 // import frc.robot.subsystems.IntakeSubsystem;
-// import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
 import swervelib.SwerveInputStream;
@@ -35,7 +36,7 @@ public class RobotContainer
   private final SwerveSubsystem       drivebase  = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(),
                                                                                 "swerve/neo"));
   private final SendableChooser<Command> autoChooser;
-  // private final ShooterSubsystem shooterSubsystem;
+  private final ShooterSubsystem shooterSubsystem;
   // private final IntakeSubsystem intakeSubsystem;
   // private final BufferSubsystem bufferSubsystem;
 
@@ -95,14 +96,17 @@ public class RobotContainer
 
   public RobotContainer()
   {
+    
+   
     // bufferSubsystem = new BufferSubsystem();
-    // shooterSubsystem = new ShooterSubsystem();
+    shooterSubsystem = new ShooterSubsystem();
     // intakeSubsystem = new IntakeSubsystem();
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     
     //Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    NamedCommands.registerCommand("Shoot", new Shoot(shooterSubsystem,73 ));
 
     //Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -239,7 +243,8 @@ public class RobotContainer
 
   public Command getAutonomousCommand()  
   {
-   return drivebase.getAutonomousCommand("heading");
+   return drivebase.getAutonomousCommand("percurso");
+
   }
 
   public void setMotorBrake(boolean brake)
