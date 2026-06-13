@@ -45,7 +45,7 @@ public class RobotContainer
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                 () -> (driverXbox.getLeftY() * 0.6),
                                                                 () -> (driverXbox.getLeftX() * 0.6))
-                                                            .withControllerRotationAxis((driverXbox::getRightX))
+                                                            .withControllerRotationAxis((() -> (driverXbox.getRightX() * -1)))
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
                                                             .allianceRelativeControl(true);
@@ -239,7 +239,7 @@ public class RobotContainer
 
   public Command getAutonomousCommand()  
   {
-   return drivebase.getAutonomousCommand("curva");
+   return drivebase.getAutonomousCommand("heading");
   }
 
   public void setMotorBrake(boolean brake)
