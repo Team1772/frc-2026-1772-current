@@ -19,10 +19,11 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.swervedrive.auto.shooter.ShootAuto;
-import frc.robot.commands.swervedrive.auto.shooter.ShootAutoTimer;
-import frc.robot.subsystems.BufferSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.commands.swervedrive.auto.shooter.Shoot;
+// import frc.robot.commands.swervedrive.auto.shooter.ShootAuto;
+// import frc.robot.commands.swervedrive.auto.shooter.ShootAutoTimer;
+// import frc.robot.subsystems.BufferSubsystem;
+// import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.swervedrive.SwerveSubsystem;
 import java.io.File;
@@ -36,16 +37,16 @@ public class RobotContainer
                                                                                 "swerve/neo"));
   private final SendableChooser<Command> autoChooser;
   private final ShooterSubsystem shooterSubsystem;
-  private final IntakeSubsystem intakeSubsystem;
-  private final BufferSubsystem bufferSubsystem;
+  // private final IntakeSubsystem intakeSubsystem;
+  // private final BufferSubsystem bufferSubsystem;
 
   /**
    * Converts driver input into a field-relative ChassisSpeeds that is controlled by angular velocity.
    */
   SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                () -> driverXbox.getLeftY() * -1,
-                                                                () -> driverXbox.getLeftX() * -1)
-                                                            .withControllerRotationAxis(driverXbox::getRightX)
+                                                                () -> (driverXbox.getLeftY() * 0.6),
+                                                                () -> (driverXbox.getLeftX() * 0.6))
+                                                            .withControllerRotationAxis((() -> (driverXbox.getRightX() * -1)))
                                                             .deadband(OperatorConstants.DEADBAND)
                                                             .scaleTranslation(0.8)
                                                             .allianceRelativeControl(true);
@@ -95,14 +96,17 @@ public class RobotContainer
 
   public RobotContainer()
   {
-    bufferSubsystem = new BufferSubsystem();
+    
+   
+    // bufferSubsystem = new BufferSubsystem();
     shooterSubsystem = new ShooterSubsystem();
-    intakeSubsystem = new IntakeSubsystem();
+    // intakeSubsystem = new IntakeSubsystem();
     configureBindings();
     DriverStation.silenceJoystickConnectionWarning(true);
     
     //Create the NamedCommands that will be used in PathPlanner
     NamedCommands.registerCommand("test", Commands.print("I EXIST"));
+    NamedCommands.registerCommand("Shoot", new Shoot(shooterSubsystem,73 ));
 
     //Have the autoChooser pull in all PathPlanner autos as options
     autoChooser = AutoBuilder.buildAutoChooser();
@@ -193,54 +197,53 @@ public class RobotContainer
     //----------------------------------------------------------------------------------------
     //end of swerve buttons
     //----------------------------------------------------------------------------------------
+// COMENTADO PARA TESTE --===----==---=-=---=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=---=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=--=-=---=-=-=-=-==-=-=-
+    // boolean isUsarUmControle = false;
+    // //true = 1 controle
+    // //false = 2 controle
+    // double velocityRps = 73; //Shooter
+    // double velocityBuffer = -0.6;
+    // double velocityIntake = 0.6;
 
-    boolean isUsarUmControle = false;
-    //true = 1 controle
-    //false = 2 controle
-    double velocityRps = 73; //Shooter
-    double velocityBuffer = -0.6;
-    double velocityIntake = 0.8;
+    // Command shooterCommand = Commands.startEnd(() -> shooterSubsystem.velocityOut(velocityRps), shooterSubsystem::stop, shooterSubsystem);
+    //                     //.alongWith(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
 
-    Command shooterCommand = Commands.startEnd(() -> shooterSubsystem.velocityOut(velocityRps), shooterSubsystem::stop, shooterSubsystem);
-                        //.alongWith(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+    // Command bufferShooterCommand = Commands.startEnd(() -> shooterSubsystem.velocityOut(30), shooterSubsystem::stop, shooterSubsystem)
+    //                     .alongWith(Commands.startEnd(() -> bufferSubsystem.percentOut(-0.9), bufferSubsystem::stop, bufferSubsystem));
 
-    Command bufferShooterCommand = Commands.startEnd(() -> shooterSubsystem.velocityOut(30), shooterSubsystem::stop, shooterSubsystem)
-                        .alongWith(Commands.startEnd(() -> bufferSubsystem.percentOut(-0.9), bufferSubsystem::stop, bufferSubsystem));
+    // Command bufferShooterCommand2 = Commands.startEnd(() -> shooterSubsystem.velocityOut(45), shooterSubsystem::stop, shooterSubsystem)
+    //                     .alongWith(Commands.startEnd(() -> bufferSubsystem.percentOut(-0.9), bufferSubsystem::stop, bufferSubsystem));
 
-    Command bufferShooterCommand2 = Commands.startEnd(() -> shooterSubsystem.velocityOut(45), shooterSubsystem::stop, shooterSubsystem)
-                        .alongWith(Commands.startEnd(() -> bufferSubsystem.percentOut(-0.9), bufferSubsystem::stop, bufferSubsystem));
+    // Command ShootAutoCommand = new ShootAuto(bufferSubsystem, shooterSubsystem, intakeSubsystem, velocityRps);
 
-    Command ShootAutoCommand = new ShootAuto(bufferSubsystem, shooterSubsystem, intakeSubsystem, velocityRps);
-
-    if (isUsarUmControle) {
+  //   if (isUsarUmControle) {
     
-    driverXbox.y().whileTrue(bufferShooterCommand);
-    driverXbox.rightTrigger().whileTrue(shooterCommand);
-    driverXbox.rightBumper().whileTrue(ShootAutoCommand);
-    driverXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    driverXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    driverXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
-    driverXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
-    driverXbox.povUp().whileTrue(bufferShooterCommand2);
+  //   driverXbox.rightBumper().whileTrue(ShootAutoCommand);
+  //   driverXbox.y().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-0.05), bufferSubsystem::stopServo, bufferSubsystem));
+  //   driverXbox.a().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(0.05), bufferSubsystem::stopServo, bufferSubsystem));
+  //   driverXbox.rightTrigger().whileTrue(shooterCommand);
+  //   driverXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+  //   driverXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+  //   driverXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+  //   driverXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+  //   driverXbox.povUp().whileTrue(bufferShooterCommand2);
 
-  } else {
-    copilotXbox.rightBumper().whileTrue(ShootAutoCommand);
-    copilotXbox.y().whileTrue(bufferShooterCommand);
-    copilotXbox.rightTrigger().whileTrue(shooterCommand);
-    copilotXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    copilotXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
-    copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
-    copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
-    copilotXbox.povUp().whileTrue(bufferShooterCommand2);
-    copilotXbox.povLeft().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(1.0), bufferSubsystem::stopServo, bufferSubsystem));
-    copilotXbox.povRight().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-1.0), bufferSubsystem::stopServo, bufferSubsystem));
-    }
-    }
+  // } else {
+  //   copilotXbox.rightBumper().whileTrue(ShootAutoCommand);
+  //   copilotXbox.y().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(-0.05), bufferSubsystem::stopServo, bufferSubsystem));
+  //   copilotXbox.a().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOutServo(0.05), bufferSubsystem::stopServo, bufferSubsystem));
+  //   copilotXbox.rightTrigger().whileTrue(shooterCommand);
+  //   copilotXbox.x().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+  //   copilotXbox.b().whileTrue(Commands.startEnd(() -> bufferSubsystem.percentOut2(-velocityBuffer), bufferSubsystem::stop, bufferSubsystem));
+  //   copilotXbox.leftBumper().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+  //   copilotXbox.leftTrigger().whileTrue(Commands.startEnd(() -> intakeSubsystem.percentOut(-velocityIntake), intakeSubsystem::stop, intakeSubsystem));
+  //   copilotXbox.povUp().whileTrue(bufferShooterCommand2);
+  //   }
+     }
 
-  public Command getAutonomousCommand()
-  
+  public Command getAutonomousCommand()  
   {
-    return new ShootAutoTimer(bufferSubsystem, shooterSubsystem, bufferSubsystem, 15);
+   return drivebase.getAutonomousCommand("percurso");
 
   }
 
@@ -248,5 +251,7 @@ public class RobotContainer
   {
     drivebase.setMotorBrake(brake);
   }
+
+  
 }
 

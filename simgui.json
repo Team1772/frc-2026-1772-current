@@ -61,6 +61,7 @@
       "/LiveWindow/Ungrouped/Pigeon 2 [13]": "Gyro",
       "/LiveWindow/Ungrouped/Scheduler": "Scheduler",
       "/SmartDashboard/Alerts": "Alerts",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
       "/SmartDashboard/Encoders": "Alerts",
       "/SmartDashboard/Field": "Field2d",
       "/SmartDashboard/IMU": "Alerts",
@@ -108,7 +109,6 @@
           "style": "Hidden"
         },
         "bottom": 1638,
-        "builtin": "2025 Reefscape",
         "height": 8.051901817321777,
         "left": 534,
         "right": 3466,
@@ -117,12 +117,31 @@
         "window": {
           "visible": true
         }
+      },
+      "/SmartDashboard/PathPlanner": {
+        "window": {
+          "visible": true
+        }
+      },
+      "/SmartDashboard/Swerve Drive": {
+        "window": {
+          "visible": true
+        }
       }
     }
   },
   "NetworkTables": {
+    "Retained Values": {
+      "open": false
+    },
+    "Transitory Values": {
+      "open": false
+    },
     "transitory": {
       "FMSInfo": {
+        "open": true
+      },
+      "PathPlanner": {
         "open": true
       },
       "SmartDashboard": {
@@ -138,5 +157,23 @@
   },
   "NetworkTables Info": {
     "visible": true
+  },
+  "Plot": {
+    "Plot <0>": {
+      "plots": [
+        {
+          "backgroundColor": [
+            0.0,
+            0.0,
+            0.0,
+            0.8500000238418579
+          ],
+          "height": 338
+        }
+      ],
+      "window": {
+        "visible": false
+      }
+    }
   }
 }
